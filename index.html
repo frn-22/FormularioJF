@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JF Estudio - Subida de Archivos para Proyectos</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Uploadcare API -->
+    <script>
+        UPLOADCARE_PUBLIC_KEY = 'df161266156a4d807875';
+    </script>
+    <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js" charset="utf-8"></script>
+
+    <style>
+        :root {
+            --primary-color: #CEEC97;
+            --secondary-color: #2CA6A4;
+            --dark-color: #1A1A2E;
+            --white: #F6F3EF;
+            --light-gray: #F8F9FA;
+            --negrito: #000000;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--dark-color) 0%, #1A1A2E 100%);
+            color: var(--white);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Efecto Glass */
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-dark {
+            background: rgba(26, 26, 46, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        header {
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 1.5rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            z-index: 1001;
+        }
+
+        .logo span {
+            color: var(--primary-color);
+        }
+
+        /* Estilos del menú hamburguesa */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: var(--white);
+            margin: 3px 0;
+            transition: 0.3s;
+        }
+
+        nav {
+            display: flex;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+
+        nav ul li a {
+            color: var(--white);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 0.5rem 0.8rem;
+            border-radius: 4px;
+        }
+
+        nav ul li a:hover {
+            color: var(--primary-color);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .hero {
+            padding: 6rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--white);
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: var(--white);
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--secondary-color);
+            color: var(--white);
+            padding: 0.8rem 1.8rem;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(44, 166, 164, 0.3);
+        }
+
+        .btn:hover {
+            background-color: var(--primary-color);
+            color: var(--dark-color);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(206, 236, 151, 0.4);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--dark-color);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            color: var(--white);
+        }
+
+        section {
+            padding: 5rem 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title p {
+            color: var(--white);
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .upload-container {
+            padding: 2.5rem;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.8rem;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.8rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .required-indicator {
+            color: #ff6b6b;
+            margin-left: 4px;
+        }
+
+        .completed-indicator {
+            color: var(--primary-color);
+            margin-left: 8px;
+            display: none;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 0 3px rgba(44, 166, 164, 0.2);
+        }
+
+        textarea.form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .file-upload-area {
+            border: 2px dashed rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            padding: 3rem 2rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .file-upload-area:hover {
+            border-color: var(--secondary-color);
+            background: rgba(44, 166, 164, 0.1);
+        }
+
+        .file-upload-area.active {
+            border-color: var(--secondary-color);
+            background: rgba(44, 166, 164, 0.15);
+        }
+
+        .file-upload-icon {
+            font-size: 3.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-text {
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-text p {
+            margin-bottom: 0.5rem;
+        }
+
+        .file-list {
+            margin-top: 1.5rem;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin-bottom: 0.8rem;
+            transition: all 0.3s;
+        }
+
+        .file-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .file-icon {
+            margin-right: 1rem;
+            color: var(--secondary-color);
+        }
+
+        .file-name {
+            flex-grow: 1;
+            color: var(--white);
+        }
+
+        .file-size {
+            color: var(--primary-color);
+            margin-right: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .file-remove {
+            color: #ff6b6b;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .file-remove:hover {
+            color: #ff5252;
+        }
+
+        .features {
+            position: relative;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            padding: 2.5rem 2rem;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 1.2rem;
+            color: var(--white);
+            font-size: 1.5rem;
+        }
+
+        .feature-card p {
+            color: var(--white);
+            opacity: 0.8;
+        }
+
+        footer {
+            padding: 4rem 0 2rem;
+            position: relative;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-column h3 {
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            color: var(--primary-color);
+        }
+
+        .footer-column p {
+            color: var(--white);
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column ul li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-column ul li a {
+            color: var(--white);
+            opacity: 0.8;
+            text-decoration: none;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-column ul li a i {
+            margin-right: 0.5rem;
+            color: var(--secondary-color);
+        }
+
+        .footer-column ul li a:hover {
+            opacity: 1;
+            color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--white);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        .form-section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .section-number {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            background-color: var(--secondary-color);
+            color: var(--white);
+            border-radius: 50%;
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .section-completed {
+            background-color: var(--primary-color);
+            color: var(--dark-color);
+        }
+
+        .form-section {
+            margin-bottom: 2.5rem;
+        }
+
+        /* NUEVOS ESTILOS PARA MEJORAS */
+
+        /* Barra de progreso */
+        .progress-container {
+            margin-bottom: 2rem;
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+
+        .progress {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+        }
+
+        /* FAQ Section */
+        .faq-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            margin-bottom: 1rem;
+        }
+
+        .faq-question {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .faq-question:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .faq-question h3 {
+            margin: 0;
+            flex-grow: 1;
+            color: var(--white);
+            font-size: 1.1rem;
+        }
+
+        .faq-icon {
+            color: var(--primary-color);
+            transition: transform 0.3s;
+        }
+
+        .faq-answer {
+            padding: 0 1.2rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease, padding 0.3s ease;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 0 0 8px 8px;
+        }
+
+        .faq-answer.active {
+            padding: 1.2rem;
+            max-height: 500px;
+        }
+
+        .faq-answer p {
+            margin-bottom: 1rem;
+            color: var(--white);
+            opacity: 0.9;
+        }
+
+        .faq-answer p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Modal de confirmación */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            max-width: 500px;
+            width: 90%;
+            padding: 2.5rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        .modal-icon {
+            font-size: 4rem;
+            color: var(--primary-color);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Tipos de archivo */
+        .file-types {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+
+        .file-type-tag {
+            background: rgba(44, 166, 164, 0.2);
+            color: var(--primary-color);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(44, 166, 164, 0.3);
+        }
+
+        /* Contador de archivos */
+        .file-counter {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--primary-color);
+            font-size: 0.9rem;
+        }
+
+        /* Uploadcare - OCULTAR COMPLETAMENTE */
+        .uploadcare-widget,
+        .uploadcare-widget-button,
+        .uploadcare-widget-status,
+        [role="uploadcare-uploader"],
+        input[type="hidden"][role="uploadcare-uploader"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            position: absolute !important;
+            left: -9999px !important;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary-color);
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .upload-status {
+            text-align: center;
+            margin-top: 1rem;
+            color: var(--primary-color);
+        }
+
+        /* Drag and drop styles */
+        .drag-over {
+            border-color: var(--primary-color) !important;
+            background: rgba(206, 236, 151, 0.1) !important;
+        }
+
+        /* Progress bar for individual files */
+        .file-progress {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+            display: none;
+        }
+
+        .file-progress-bar {
+            height: 100%;
+            background: var(--primary-color);
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* ========== RESPONSIVE DESIGN ========== */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: row;
+                text-align: center;
+            }
+
+            /* Menú hamburguesa */
+            .hamburger {
+                display: flex;
+            }
+
+            nav {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 70%;
+                height: 100vh;
+                background: var(--dark-color);
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                transition: right 0.3s ease;
+                z-index: 1000;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
+            }
+
+            nav.active {
+                right: 0;
+            }
+
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+                width: 100%;
+            }
+
+            nav ul li {
+                margin: 1rem 0;
+                width: 80%;
+                text-align: center;
+            }
+
+            nav ul li a {
+                display: block;
+                padding: 1rem;
+                width: 100%;
+                font-size: 1.2rem;
+            }
+
+            .hero h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .upload-container {
+                padding: 1.5rem;
+            }
+
+            .feature-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .faq-question h3 {
+                font-size: 1rem;
+            }
+
+            .section-title h2 {
+                font-size: 2rem;
+            }
+
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .file-upload-area {
+                padding: 2rem 1rem;
+            }
+
+            .file-upload-icon {
+                font-size: 2.5rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                padding: 4rem 0;
+            }
+
+            .hero h1 {
+                font-size: 1.8rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .section-title h2 {
+                font-size: 1.8rem;
+            }
+
+            .upload-container {
+                padding: 1rem;
+            }
+
+            .feature-card {
+                padding: 1.5rem 1rem;
+            }
+
+            .file-types {
+                gap: 0.3rem;
+            }
+
+            .file-type-tag {
+                font-size: 0.7rem;
+                padding: 0.2rem 0.6rem;
+            }
+
+            .form-section-title h3 {
+                font-size: 1.1rem;
+            }
+        }
+
+        /* Animación del menú hamburguesa */
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -6px);
+        }
+
+        /* Overlay para el menú móvil */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Overlay para cerrar menú al hacer clic fuera -->
+    <div class="overlay" id="overlay"></div>
+
+    <header class="glass-dark">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">JF <span>Estudio</span></div>
+
+                <!-- Menú Hamburguesa -->
+                <div class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+
+                <nav id="nav">
+                    <ul>
+                        <li><a href="#inicio">Inicio</a></li>
+                        <li><a href="#subir-archivos">Subir Archivos</a></li>
+                        <li><a href="#como-funciona">Cómo Funciona</a></li>
+                        <li><a href="#preguntas-frecuentes">FAQ</a></li>
+                        <li><a href="#contacto">Contacto</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero" id="inicio">
+        <div class="container">
+            <div class="hero-content glass">
+                <h1>Comienza tu proyecto con JF Estudio</h1>
+                <p>Sube fácilmente todos los archivos necesarios para dar vida a tu proyecto creativo. Fotos, títulos, documentos y más en un solo lugar.</p>
+                <a href="#subir-archivos" class="btn btn-primary">Subir Archivos Ahora</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="subir-archivos">
+        <div class="container">
+            <div class="section-title">
+                <h2>Sube Tus Archivos</h2>
+                <p>Completa la información de tu proyecto y carga los materiales necesarios</p>
+            </div>
+
+            <!-- Barra de progreso -->
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div class="progress" id="form-progress"></div>
+                </div>
+                <div class="progress-text" id="progress-text">0% completado</div>
+            </div>
+
+            <div class="upload-container glass">
+                <form id="upload-form" action="https://formspree.io/f/myzbbrov" method="POST">
+                    <!-- Contenido del formulario (se mantiene igual) -->
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <div class="section-number" id="section-1-number">1</div>
+                            <h3>Información Básica del Proyecto</h3>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="project-name">Nombre del Proyecto <span class="required-indicator">*</span>
+                                <span class="completed-indicator" id="project-name-check">✓</span>
+                            </label>
+                            <input type="text" id="project-name" name="project-name" class="form-control" placeholder="Ej: Campaña Publicitaria Verano 2023" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="client-name">Tu Nombre <span class="required-indicator">*</span>
+                                <span class="completed-indicator" id="client-name-check">✓</span>
+                            </label>
+                            <input type="text" id="client-name" name="client-name" class="form-control" placeholder="Nombre completo" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="client-email">Correo Electrónico <span class="required-indicator">*</span>
+                                <span class="completed-indicator" id="client-email-check">✓</span>
+                            </label>
+                            <input type="email" id="client-email" name="client-email" class="form-control" placeholder="tu@email.com" required>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <div class="section-number" id="section-2-number">2</div>
+                            <h3>Detalles del Proyecto</h3>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="project-description">Descripción del Proyecto <span class="required-indicator">*</span>
+                                <span class="completed-indicator" id="project-description-check">✓</span>
+                            </label>
+                            <textarea id="project-description" name="project-description" class="form-control" placeholder="Describe tu proyecto, objetivos, público objetivo, estilo visual preferido, colores, y cualquier detalle importante..." required></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <div class="section-number" id="section-3-number">3</div>
+                            <h3>Archivos del Proyecto</h3>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Archivos del Proyecto
+                                <span class="completed-indicator" id="files-check">✓</span>
+                            </label>
+
+                            <!-- Input de archivo oculto para usar con Uploadcare API -->
+                            <input type="file" id="file-input" multiple style="display: none;" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.psd,.ai,.svg,.mp4,.mov,.gif,.txt,.zip">
+
+                            <div class="file-upload-area glass" id="drop-area">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                </div>
+                                <div class="file-upload-text">
+                                    <p>Arrastra y suelta tus archivos aquí</p>
+                                    <p>o</p>
+                                </div>
+                                <button type="button" class="btn" id="browse-btn">Seleccionar Archivos</button>
+
+                                <div class="file-types">
+                                    <span class="file-type-tag">JPG</span>
+                                    <span class="file-type-tag">PNG</span>
+                                    <span class="file-type-tag">PDF</span>
+                                    <span class="file-type-tag">DOC</span>
+                                    <span class="file-type-tag">PSD</span>
+                                    <span class="file-type-tag">AI</span>
+                                    <span class="file-type-tag">SVG</span>
+                                    <span class="file-type-tag">MP4</span>
+                                </div>
+
+                                <p class="small-text" style="margin-top: 1rem; color: var(--primary-color); font-size: 0.9rem;">
+                                    Tamaño máximo por archivo: 50MB
+                                </p>
+                            </div>
+
+                            <div class="upload-status" id="upload-status" style="display: none;">
+                                <div class="spinner"></div>
+                                <p>Subiendo archivos...</p>
+                            </div>
+
+                            <div class="file-counter" id="file-counter">0 archivos seleccionados</div>
+
+                            <div class="file-list" id="file-list">
+                                <!-- Los archivos seleccionados aparecerán aquí -->
+                            </div>
+
+                            <!-- Campo oculto para almacenar URLs de archivos -->
+                            <input type="hidden" name="file-urls" id="file-urls">
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <div class="form-section-title">
+                            <div class="section-number" id="section-4-number">4</div>
+                            <h3>Información Adicional</h3>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="additional-notes">Notas Adicionales
+                                <span class="completed-indicator" id="notes-check">✓</span>
+                            </label>
+                            <textarea id="additional-notes" name="additional-notes" class="form-control" placeholder="¿Algo más que debamos saber? Referencias, inspiración, requisitos específicos..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="reference-links">Enlaces de Referencia (Opcional)
+                                <span class="completed-indicator" id="links-check">✓</span>
+                            </label>
+                            <textarea id="reference-links" name="reference-links" class="form-control" placeholder="Pega aquí enlaces a sitios web, Pinterest, Behance, etc. que te inspiren"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 2rem;">
+                        <label for="newsletter" style="display: flex; align-items: center; font-weight: normal;">
+                            <input type="checkbox" id="newsletter" name="newsletter" style="margin-right: 10px;">
+                            Me gustaría recibir novedades y tips sobre diseño (puedes desuscribirte en cualquier momento)
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn" style="width: 100%; margin-top: 1.5rem;">Enviar Proyecto</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="como-funciona">
+        <div class="container">
+            <div class="section-title">
+                <h2>¿Cómo Funciona?</h2>
+                <p>Un proceso simple para iniciar tu proyecto con JF Estudio</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card glass">
+                    <div class="feature-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <h3>Completa la Información</h3>
+                    <p>Proporciona los detalles básicos de tu proyecto: nombre, descripción y tus datos de contacto.</p>
+                </div>
+
+                <div class="feature-card glass">
+                    <div class="feature-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Sube Tus Archivos</h3>
+                    <p>Carga todas las fotos, documentos, logotipos y materiales necesarios para tu proyecto.</p>
+                </div>
+
+                <div class="feature-card glass">
+                    <div class="feature-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3>Revisión y Confirmación</h3>
+                    <p>Recibirás una confirmación y nos pondremos en contacto contigo para los próximos pasos.</p>
+                </div>
+
+                <div class="feature-card glass">
+                    <div class="feature-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>Proyecto en Marcha</h3>
+                    <p>Una vez recibidos todos los materiales, comenzaremos a trabajar en tu proyecto.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECCIÓN PREGUNTAS FRECUENTES COMPLETA -->
+    <section id="preguntas-frecuentes">
+        <div class="container">
+            <div class="section-title">
+                <h2>Preguntas Frecuentes</h2>
+                <p>Resolvemos todas tus dudas sobre el proceso de trabajo con JF Estudio</p>
+            </div>
+
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question glass">
+                        <h3>¿Qué tipos de archivos puedo subir?</h3>
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Aceptamos una amplia variedad de formatos para facilitar tu trabajo: imágenes (JPG, PNG, SVG, GIF), documentos (PDF, DOC, DOCX, TXT), archivos de diseño (PSD, AI, INDD, SKETCH), y archivos de video (MP4, MOV, AVI).</p>
+                        <p>Si tienes un formato especial que no aparece en la lista, contáctanos y verificaremos la compatibilidad.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question glass">
+                        <h3>¿Hay un límite de tamaño para los archivos?</h3>
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Cada archivo individual no debe superar los 50MB. Esta limitación asegura una subida rápida y estable.</p>
+                        <p>Si necesitas enviar archivos más grandes, te recomendamos comprimirlos o utilizar servicios como WeTransfer, Google Drive o Dropbox y luego incluir el enlace de descarga en la sección de "Notas Adicionales".</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question glass">
+                        <h3>¿Cuánto tiempo tardan en revisar mi proyecto?</h3>
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Revisamos todos los proyectos dentro de las primeras 24-48 horas hábiles después de la recepción. Durante este tiempo analizamos los materiales, verificamos que tengamos toda la información necesaria y evaluamos la viabilidad del proyecto.</p>
+                        <p>Te contactaremos para confirmar los detalles y proporcionarte un cronograma estimado específico para tu proyecto.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question glass">
+                        <h3>¿Puedo hacer cambios después de enviar el proyecto?</h3>
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Sí, puedes enviar información adicional o modificaciones hasta que el proyecto entre en producción. Una vez que comencemos a trabajar, los cambios pueden estar sujetos a cargos adicionales dependiendo de su alcance.</p>
+                        <p>Siempre confirmaremos contigo antes de proceder con cualquier trabajo y te informaremos sobre posibles impactos en el cronograma o costos.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question glass">
+                        <h3>¿Mi información y archivos están seguros?</h3>
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Absolutamente. Tomamos muy en serio la seguridad y privacidad de tus datos. Todos los archivos se transfieren mediante conexión segura (SSL) y solo el equipo asignado a tu proyecto tendrá acceso a la información.</p>
+                        <p>No compartimos tus datos con terceros y mantenemos estrictos protocolos de confidencialidad. Tus archivos se almacenan en servidores seguros con copias de respaldo regulares.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question glass">
+                        <h3>¿Qué sucede si tengo problemas técnicos al subir archivos?</h3>
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Si experimentas problemas técnicos al subir tus archivos, puedes contactarnos directamente por correo electrónico a jf.estudio.digital@gmail.com. También puedes enviarnos los archivos por WeTransfer o Google Drive y nosotros los añadiremos manualmente a tu proyecto.</p>
+                        <p>Nuestro equipo de soporte está disponible para ayudarte con cualquier inconveniente que puedas tener durante el proceso de subida.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question glass">
+                        <h3>¿Puedo enviar referencias visuales o ejemplos de lo que me gusta?</h3>
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>¡Por supuesto! De hecho, lo recomendamos encarecidamente. Puedes subir imágenes de referencia, enlaces a Pinterest, Behance, o cualquier sitio web que muestre estilos, colores o diseños que te gusten.</p>
+                        <p>Esto nos ayuda enormemente a entender tu visión y expectativas, asegurando que el resultado final se alinee perfectamente con lo que imaginas.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question glass">
+                        <h3>¿Qué información debo incluir en la descripción del proyecto?</h3>
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Mientras más detallada sea la descripción, mejor. Te recomendamos incluir información sobre:</p>
+                        <p>- Objetivos del proyecto<br>
+                           - Público objetivo<br>
+                           - Colores preferidos (y los que no te gustan)<br>
+                           - Estilos que te gustan (y los que no)<br>
+                           - Mensaje clave que quieres comunicar<br>
+                           - Cualquier requisito específico o restricción</p>
+                        <p>Cuanta más información nos proporciones, más precisos seremos en la ejecución de tu proyecto.</p>
+                    </div>
+                </div>
+
+
+                <div class="faq-item">
+                    <div class="faq-question glass">
+                        <h3>¿Cómo sé que mi proyecto ha sido recibido correctamente?</h3>
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Recibirás un correo electrónico de confirmación automática inmediatamente después de enviar tu proyecto. Este correo incluirá un resumen de la información que nos has proporcionado.</p>
+                        <p>Además, en 24-48 horas hábiles te contactaremos personalmente para confirmar todos los detalles, resolver cualquier duda y comenzar a trabajar en tu proyecto.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question glass">
+                        <h3>¿Qué métodos de pago aceptan?</h3>
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Aceptamos diversos métodos de pago para tu comodidad: transferencia bancaria, tarjetas de crédito y débito, PayPal y Mercado Pago.</p>
+                        <p>Una vez que confirmemos los detalles de tu proyecto, te enviaremos una propuesta formal que incluirá los términos de pago. Generalmente trabajamos con un 50% de anticipo y 50% al finalizar el proyecto.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question glass">
+                        <h3>¿Trabajan con clientes internacionales?</h3>
+                        <span class="faq-icon"><i class="fas fa-chevron-down"></i></span>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Sí, trabajamos con clientes de todo el mundo. Nuestro equipo está acostumbrado a colaborar de manera remota y contamos con experiencia en proyectos internacionales.</p>
+                        <p>Manejamos reuniones por videollamada para asegurar una comunicación clara y efectiva, independientemente de tu ubicación geográfica. Los pagos se pueden realizar en diferentes monedas según tu preferencia.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer id="contacto">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>JF Estudio</h3>
+
+                  <p>Contáctanos para comenzar tu proyecto hoy mismo.</p>
+
+                </div>
+
+                <div class="footer-column">
+                    <h3>Enlaces Rápidos</h3>
+                    <ul>
+                        <li><a href="#inicio"><i class="fas fa-chevron-right"></i> Inicio</a></li>
+                        <li><a href="#subir-archivos"><i class="fas fa-chevron-right"></i> Subir Archivos</a></li>
+                        <li><a href="#como-funciona"><i class="fas fa-chevron-right"></i> Cómo Funciona</a></li>
+                        <li><a href="#preguntas-frecuentes"><i class="fas fa-chevron-right"></i> Preguntas Frecuentes</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Contacto</h3>
+                    <ul>
+                        <li><a href="mailto:jf.estudio.digital@gmail.com"><i class="fas fa-envelope"></i>jf.estudio.digital@gmail.com</a></li>
+                        <li><a href="#"><i class="fas fa-map-marker-alt"></i> Buenos Aires, Argentina</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="copyright">
+                <p>&copy; 2025 JF Estudio. Todos los derechos reservados. | <a href="#" style="color: var(--primary-color);">Política de Privacidad</a> | <a href="#" style="color: var(--primary-color);">Términos de Servicio</a></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal de confirmación -->
+    <div class="modal" id="confirmation-modal">
+        <div class="modal-content glass">
+            <button class="modal-close" id="modal-close">&times;</button>
+            <div class="modal-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 style="color: var(--primary-color); margin-bottom: 1rem;">¡Proyecto Enviado con Éxito!</h2>
+            <p style="margin-bottom: 1.5rem;">Hemos recibido toda la información y archivos de tu proyecto. Nos pondremos en contacto contigo en las próximas 24 horas.</p>
+            <button class="btn btn-primary" id="modal-ok">Entendido</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables globales
+            let uploadedFiles = [];
+            const fileUrlsInput = document.getElementById('file-urls');
+            const uploadStatus = document.getElementById('upload-status');
+            const fileList = document.getElementById('file-list');
+            const fileCounter = document.getElementById('file-counter');
+            const form = document.getElementById('upload-form');
+            const modal = document.getElementById('confirmation-modal');
+            const modalClose = document.getElementById('modal-close');
+            const modalOk = document.getElementById('modal-ok');
+            const browseBtn = document.getElementById('browse-btn');
+            const dropArea = document.getElementById('drop-area');
+            const fileInput = document.getElementById('file-input');
+
+            // Elementos del menú hamburguesa
+            const hamburger = document.getElementById('hamburger');
+            const nav = document.getElementById('nav');
+            const overlay = document.getElementById('overlay');
+
+            // Función para alternar el menú
+            function toggleMenu() {
+                hamburger.classList.toggle('active');
+                nav.classList.toggle('active');
+                overlay.classList.toggle('active');
+                document.body.style.overflow = nav.classList.contains('active') ? 'hidden' : '';
+            }
+
+            // Event listeners para el menú hamburguesa
+            hamburger.addEventListener('click', toggleMenu);
+            overlay.addEventListener('click', toggleMenu);
+
+            // Cerrar menú al hacer clic en un enlace
+            document.querySelectorAll('nav a').forEach(link => {
+                link.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        toggleMenu();
+                    }
+                });
+            });
+
+            // Configuración de FAQ
+            const faqQuestions = document.querySelectorAll('.faq-question');
+
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', () => {
+                    const answer = question.nextElementSibling;
+                    const icon = question.querySelector('.faq-icon i');
+
+                    // Cerrar otras preguntas abiertas
+                    document.querySelectorAll('.faq-answer.active').forEach(activeAnswer => {
+                        if (activeAnswer !== answer) {
+                            activeAnswer.classList.remove('active');
+                            activeAnswer.previousElementSibling.querySelector('.faq-icon i').style.transform = 'rotate(0deg)';
+                        }
+                    });
+
+                    // Toggle active class
+                    answer.classList.toggle('active');
+
+                    // Rotate icon
+                    if (answer.classList.contains('active')) {
+                        icon.style.transform = 'rotate(180deg)';
+                    } else {
+                        icon.style.transform = 'rotate(0deg)';
+                    }
+                });
+            });
+
+            // Abrir el selector de archivos cuando se hace clic en nuestro botón
+            browseBtn.addEventListener('click', function() {
+                fileInput.click();
+            });
+
+            // Manejar la selección de archivos
+            fileInput.addEventListener('change', function(e) {
+                const files = e.target.files;
+                handleFiles(files);
+            });
+
+            // Drag and drop
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight() {
+                dropArea.classList.add('drag-over');
+            }
+
+            function unhighlight() {
+                dropArea.classList.remove('drag-over');
+            }
+
+            // Manejar archivos soltados
+            dropArea.addEventListener('drop', function(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                handleFiles(files);
+            });
+
+            // Procesar archivos seleccionados
+            function handleFiles(files) {
+                uploadStatus.style.display = 'block';
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    if (validateFile(file)) {
+                        // Crear elemento de archivo inmediatamente
+                        const fileItem = createFileItem(file);
+                        fileList.appendChild(fileItem);
+
+                        // Subir archivo a Uploadcare
+                        uploadFileToUploadcare(file, fileItem);
+                    }
+                }
+
+                updateFileCounter();
+                updateSectionCompletion();
+            }
+
+            // Crear elemento de archivo en la lista
+            function createFileItem(file) {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item glass';
+                fileItem.dataset.fileName = file.name;
+
+                const fileSize = formatFileSize(file.size);
+                const fileIcon = getFileIcon(file);
+
+                fileItem.innerHTML = `
+                    <div class="file-icon">${fileIcon}</div>
+                    <div class="file-name">${file.name}</div>
+                    <div class="file-size">${fileSize}</div>
+                    <div class="file-progress">
+                        <div class="file-progress-bar"></div>
+                    </div>
+                    <div class="file-remove">
+                        <i class="fas fa-times"></i>
+                    </div>
+                `;
+
+                // Mostrar barra de progreso
+                const progressBar = fileItem.querySelector('.file-progress');
+                progressBar.style.display = 'block';
+
+                // Eliminar archivo de la lista
+                const removeBtn = fileItem.querySelector('.file-remove');
+                removeBtn.addEventListener('click', function() {
+                    // Encontrar y eliminar el archivo de uploadedFiles
+                    const fileName = fileItem.dataset.fileName;
+                    uploadedFiles = uploadedFiles.filter(f => f.name !== fileName);
+                    fileList.removeChild(fileItem);
+                    updateFileCounter();
+                    updateSectionCompletion();
+                    fileUrlsInput.value = uploadedFiles.map(f => f.url).join(',');
+                });
+
+                return fileItem;
+            }
+
+            // Subir archivo a Uploadcare
+            function uploadFileToUploadcare(file, fileItem) {
+                const progressBar = fileItem.querySelector('.file-progress-bar');
+
+                // Usar Uploadcare para subir el archivo
+                const uploadPromise = uploadcare.fileFrom('object', file);
+
+                uploadPromise.done(function(fileInfo) {
+                    // Archivo subido exitosamente
+                    const fileData = {
+                        name: fileInfo.name,
+                        size: fileInfo.size,
+                        url: fileInfo.cdnUrl,
+                        isImage: fileInfo.isImage,
+                        mimeType: fileInfo.mimeType
+                    };
+
+                    uploadedFiles.push(fileData);
+
+                    // Actualizar campo oculto con URLs
+                    fileUrlsInput.value = uploadedFiles.map(f => f.url).join(',');
+
+                    // Ocultar barra de progreso
+                    progressBar.parentElement.style.display = 'none';
+
+                    // Verificar si todos los archivos han terminado de subirse
+                    checkAllUploadsComplete();
+                });
+
+                uploadPromise.fail(function() {
+                    alert(`Error al subir el archivo "${file.name}". Por favor, inténtalo de nuevo.`);
+                    fileList.removeChild(fileItem);
+                    updateFileCounter();
+                    updateSectionCompletion();
+                });
+
+                // Opcional: Mostrar progreso de subida
+                uploadPromise.progress(function(info) {
+                    const progress = info.uploadProgress * 100;
+                    progressBar.style.width = `${progress}%`;
+                });
+            }
+
+            // Verificar si todos los archivos han terminado de subirse
+            function checkAllUploadsComplete() {
+                const totalFiles = fileList.children.length;
+                const uploadedCount = uploadedFiles.length;
+
+                if (totalFiles === uploadedCount) {
+                    uploadStatus.style.display = 'none';
+                }
+            }
+
+            // Validar tipo y tamaño de archivo
+            function validateFile(file) {
+                const validTypes = ['image/jpeg', 'image/png', 'application/pdf',
+                                   'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                                   'image/vnd.adobe.photoshop', 'application/postscript', 'video/mp4', 'video/quicktime',
+                                   'image/svg+xml', 'image/gif', 'text/plain', 'application/zip'];
+                const maxSize = 50 * 1024 * 1024; // 50MB
+
+                if (!validTypes.includes(file.type)) {
+                    alert(`El archivo "${file.name}" no es de un tipo válido.`);
+                    return false;
+                }
+
+                if (file.size > maxSize) {
+                    alert(`El archivo "${file.name}" es demasiado grande. El tamaño máximo es 50MB.`);
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Obtener icono según tipo de archivo
+            function getFileIcon(file) {
+                if (file.type.includes('image')) {
+                    return '<i class="fas fa-file-image"></i>';
+                } else if (file.type.includes('pdf')) {
+                    return '<i class="fas fa-file-pdf"></i>';
+                } else if (file.type.includes('video')) {
+                    return '<i class="fas fa-file-video"></i>';
+                } else if (file.type.includes('word') || file.type.includes('document')) {
+                    return '<i class="fas fa-file-word"></i>';
+                } else if (file.type.includes('zip')) {
+                    return '<i class="fas fa-file-archive"></i>';
+                } else {
+                    return '<i class="fas fa-file"></i>';
+                }
+            }
+
+            // Formatear tamaño de archivo
+            function formatFileSize(bytes) {
+                if (bytes === 0) return '0 Bytes';
+                const k = 1024;
+                const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(k));
+                return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+            }
+
+            // Actualizar contador de archivos
+            function updateFileCounter() {
+                const count = fileList.children.length;
+                fileCounter.textContent = `${count} archivo${count !== 1 ? 's' : ''} seleccionado${count !== 1 ? 's' : ''}`;
+            }
+
+            // Modal functionality
+            modalClose.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            modalOk.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            // Close modal when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+
+            // Inicializar
+            updateFileCounter();
+        });
+    </script>
+</body>
+</html>
